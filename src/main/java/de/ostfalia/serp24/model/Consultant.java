@@ -15,12 +15,14 @@ public class Consultant {
     Long id;
     String name;
 
+    /*
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "project_consultant",
             joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "consultant_id", referencedColumnName = "id"))
     List<Project> bookedProjects;
+    */
 
-    @OneToMany(mappedBy = "entry")
+    @OneToMany(mappedBy = "consultant")
     private List<Entry> entries;
 }

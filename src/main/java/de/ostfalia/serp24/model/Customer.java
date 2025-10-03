@@ -17,6 +17,6 @@ public class Customer {
     String name;
     String city;
 
-    @OneToMany(mappedBy = "library")
+    @OneToMany(mappedBy = "customer")
     List<Project> projects;
 }

@@ -15,7 +15,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
+    @Column(name = "start_date")
     LocalDateTime start;
+    @Column(name = "end_date")
     LocalDateTime end;
     String status;
 
@@ -23,10 +25,11 @@ public class Project {
     @JoinColumn(name="customer_id")
     Customer customer;
 
+    /*
     @ManyToMany(mappedBy = "bookedProjects")
     List<Consultant> projectStaff;
-
-    @OneToMany(mappedBy = "entry")
+    */
+    @OneToMany(mappedBy = "project")
     private List<Entry> entries;
 
 }
