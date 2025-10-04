@@ -25,11 +25,11 @@ public class Project {
     @JoinColumn(name="customer_id")
     Customer customer;
 
-    /*
     @ManyToMany(mappedBy = "bookedProjects")
     List<Consultant> projectStaff;
-    */
+
+    /*
     @OneToMany(mappedBy = "project")
     private List<Entry> entries;
-
+    */
 }

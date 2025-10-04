@@ -21,7 +21,6 @@ public class CustomerService {
     public CustomerService(CustomerRepository customerRepository, ModelMapper modelMapper) {
         this.customerRepository = customerRepository;
         this.modelMapper = modelMapper;
-        this.modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
     // Find customer by ID

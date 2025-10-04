@@ -19,7 +19,7 @@ public class CustomerApiDelegateImpl implements CustomersApiDelegate{
     private CustomerService customerService;
     private ModelMapper modelMapper;
 
-    public CustomerApiDelegateImpl(CustomerService customerService, ModelMapper mapper, CustomerRepository customerRepository){
+    public CustomerApiDelegateImpl(CustomerService customerService, ModelMapper mapper){
         this.customerService = customerService;
         this.modelMapper = mapper;
     }
