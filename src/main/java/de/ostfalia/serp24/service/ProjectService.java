@@ -60,18 +60,20 @@ public class ProjectService {
     }
 
     public List<Customer> findAllCustomers(){
-        return projectRepository.findAll()
+        /*return projectRepository.findAll()
                 .stream()
                 .map(Project::getCustomer)
                 .distinct()
-                .toList();
+                .toList();*/
+        return projectRepository.findAllCustomers();
     }
     public List<Consultant> findAllConsultants(){
-        return projectRepository.findAll()
+        /*return projectRepository.findAll()
                 .stream()
                 .map(Project::getProjectStaff)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        return projectRepository.findAllConsultants();
     }
 }

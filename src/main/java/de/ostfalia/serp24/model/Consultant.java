@@ -22,8 +22,8 @@ public class Consultant {
             inverseJoinColumns = @JoinColumn(name = "consultant_id", referencedColumnName = "id"))
     List<Project> bookedProjects;
 
-    /*
+
     @OneToMany(mappedBy = "consultant")
     private List<Entry> entries;
-    */
+
 }

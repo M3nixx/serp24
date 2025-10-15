@@ -28,8 +28,8 @@ public class Project {
     @ManyToMany(mappedBy = "bookedProjects")
     List<Consultant> projectStaff;
 
-    /*
+
     @OneToMany(mappedBy = "project")
     private List<Entry> entries;
-    */
+
 }
