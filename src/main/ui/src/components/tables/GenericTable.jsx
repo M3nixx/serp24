@@ -32,10 +32,20 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
     return (
         <div style={{width: "100%", margin: "20px 0", height: totalHeight}}>
             <DataGrid
+                autoHeight
+                autoPageSize={false}
+                disableColumnMenu
                 rows={rows}
                 columns={columnsWithActions}
                 pageSize={pageSize}
                 loading={loading}
+                getRowHeight={() => 'auto'}
+                sx={{
+                    '& .MuiDataGrid-cell': {
+                        alignItems: 'start',
+                        paddingTop: 1,
+                        paddingBottom: 1,
+                    }}}
                 disableRowSelectionOnClick
                 pageSizeOptions={[10, 20, 30, 50]}
                 initialState={{
