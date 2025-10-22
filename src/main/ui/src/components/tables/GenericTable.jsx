@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 import {DataGrid, GridActionsCellItem} from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
-import {Button} from "@mui/material";
 import GenericButton from "../button/GenericButton";
+import GenericDeleteDialog from "../dialogs/GenericDeleteDialog";
 
-const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdown}) => {
+const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdown, onAddNew, onEdit, onDelete, entityName}) => {
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
     const baseHeight = 120;
     const rowHeight = 52;
     const totalHeight = rows.length * rowHeight + baseHeight;
@@ -18,11 +20,9 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
             width: 100,
             getActions: (params) => [
                 <GridActionsCellItem
-                    icon={<EditIcon/>}
-                    label="Bearbeiten"
-                    onClick={() => {
-                        console.log("Platzhalter Edit:", params.row);
-                    }}
+                    icon={<EditIcon />}
+                    label="Edit"
+                    onClick={() => onEdit && onEdit(params.row)}
                     showInMenu={false}
                 />,
             ],
@@ -37,6 +37,7 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
                 disableColumnMenu
                 rows={rows}
                 columns={columnsWithActions}
+                getRowId={(row) => row.id}
                 pageSize={pageSize}
                 loading={loading}
                 getRowHeight={() => 'auto'}
@@ -56,15 +57,25 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
                 <GenericButton
                     label="New"
                     color="primary"
-                    onClick={() => console.log("Platzhalter New")}
+                    onClick={onAddNew}
                 />
                 <GenericButton
                     label="Delete"
                     color="secondary"
-                    onClick={() => console.log("Platzhalter Delete")}
+                    onClick={() => setOpenDeleteDialog(true)}
                 />
                 {OptDropdown && OptDropdown}
             </div>
+
+            {/* Generic Delete Dialog */}
+            {onDelete && (
+                <GenericDeleteDialog
+                    open={openDeleteDialog}
+                    onClose={() => setOpenDeleteDialog(false)}
+                    onDelete={onDelete}
+                    entityName={entityName || "Item"}
+                />
+            )}
         </div>
 
     );
