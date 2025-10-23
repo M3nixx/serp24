@@ -54,11 +54,7 @@ public class ProjectService {
             }
 
             //remove all projectconsultants that are currently in the list but not in the new one
-            for(ProjectConsultant pc : projectToUpdate.getProjectStaff()){
-                if(!project.getProjectStaff().contains(pc)){
-                    projectToUpdate.getProjectStaff().remove(pc);
-                }
-            }
+            projectToUpdate.getProjectStaff().removeIf(pc -> !project.getProjectStaff().contains(pc));
 
             project.setProjectStaff(null);//force skip on projectstaff in modelmapper
             modelMapper.map(project, projectToUpdate);
