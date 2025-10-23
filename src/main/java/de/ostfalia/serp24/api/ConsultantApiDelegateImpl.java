@@ -1,9 +1,6 @@
 package de.ostfalia.serp24.api;
 
-import de.ostfalia.serp24.model.Consultant;
-import de.ostfalia.serp24.model.ConsultantDTO;
-import de.ostfalia.serp24.model.Customer;
-import de.ostfalia.serp24.model.CustomerDTO;
+import de.ostfalia.serp24.model.*;
 import de.ostfalia.serp24.repository.ConsultantRepository;
 import de.ostfalia.serp24.repository.CustomerRepository;
 import de.ostfalia.serp24.service.ConsultantService;
@@ -44,7 +41,7 @@ public class ConsultantApiDelegateImpl implements ConsultantsApiDelegate{
         }
         else {
             result = consultants.stream()
-                    .map(consultant -> modelMapper.map(consultant, ConsultantDTO.class))
+                    .map(this::mapToDTO)
                     .toList();
         }
 
@@ -55,26 +52,44 @@ public class ConsultantApiDelegateImpl implements ConsultantsApiDelegate{
         Consultant consultant = modelMapper.map(consultantDTO, Consultant.class);
         consultant = consultantService.save(consultant);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(modelMapper.map(consultant, ConsultantDTO.class));
+                .body(mapToDTO(consultant));
     }
 
     @Override
     public ResponseEntity<ConsultantDTO> getConsultant(Long id) {
         Consultant consultant = consultantService.findById(id);
 
-        return ResponseEntity.ok(modelMapper.map(consultant, ConsultantDTO.class));
+        return ResponseEntity.ok(mapToDTO(consultant));
     }
 
     @Override
     public ResponseEntity<ConsultantDTO> updateConsultant(Long id, ConsultantDTO consultantDTO) {
         Consultant consultant = modelMapper.map(consultantDTO, Consultant.class);
         consultant = consultantService.updateById(id, consultant);
-        return ResponseEntity.ok(modelMapper.map(consultant, ConsultantDTO.class));
+        return ResponseEntity.ok(mapToDTO(consultant));
     }
 
     @Override
     public ResponseEntity<Void> deleteConsultant(Long id) {
         consultantService.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+    public ConsultantDTO mapToDTO(Consultant consultant) {
+        ConsultantDTO dto = new ConsultantDTO();
+        dto.setId(consultant.getId());
+        dto.setName(consultant.getName());
+
+        List<ConsultantProjectDTO> projects = consultant.getBookedProjects().stream()
+                .map(pa -> {
+                    ConsultantProjectDTO pdto = new ConsultantProjectDTO();
+                    pdto.setId(pa.getId());             // join entity ID
+                    pdto.setProjectID(pa.getProject().getId()); // actual project ID
+                    pdto.setName(pa.getProject().getName());   // project name
+                    return pdto;
+                })
+                .toList();
+
+        dto.setBookedProjects(projects);
+        return dto;
     }
 }

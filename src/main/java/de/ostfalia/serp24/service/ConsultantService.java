@@ -3,11 +3,14 @@ package de.ostfalia.serp24.service;
 import de.ostfalia.serp24.Exceptions.NotFoundException;
 import de.ostfalia.serp24.model.Consultant;
 import de.ostfalia.serp24.model.Customer;
+import de.ostfalia.serp24.model.Project;
+import de.ostfalia.serp24.model.ProjectConsultant;
 import de.ostfalia.serp24.repository.ConsultantRepository;
 import de.ostfalia.serp24.repository.CustomerRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,6 +38,25 @@ public class ConsultantService {
             throw new NotFoundException("Consultant not found with id: " + id);
         }else {
             Consultant consultantToUpdate = findById(id);
+
+            //add all projectconsultants that are not already in the list
+            for(ProjectConsultant pc : consultant.getBookedProjects()){
+                pc.setConsultant(consultantToUpdate);//setup to make them comparable projectId == projectId && consultantId == consultantId
+
+                if(!consultantToUpdate.getBookedProjects().contains(pc)){
+                    consultantToUpdate.getBookedProjects().add(pc);
+                }
+            }
+
+            //remove all projectconsultants that are currently in the list but not in the new one
+            for(ProjectConsultant pc : consultantToUpdate.getBookedProjects()){
+                if(!consultant.getBookedProjects().contains(pc)){
+                    consultantToUpdate.getBookedProjects().remove(pc);
+                }
+            }
+
+            consultant.setBookedProjects(null);//force skip on projectstaff in modelmapper
+
             modelMapper.map(consultant, consultantToUpdate);
 
             return save(consultantToUpdate);

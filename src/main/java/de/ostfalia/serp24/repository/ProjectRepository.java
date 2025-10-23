@@ -11,6 +11,6 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("select distinct p.customer from Project p")
     List<Customer> findAllCustomers();
-    @Query("select distinct c from Project p JOIN p.projectStaff c")
+    @Query("select distinct c.consultant from Project p JOIN p.projectStaff c")
     List<Consultant> findAllConsultants();
 }

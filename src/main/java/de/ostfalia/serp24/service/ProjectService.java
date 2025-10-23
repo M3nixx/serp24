@@ -4,14 +4,17 @@ import de.ostfalia.serp24.Exceptions.NotFoundException;
 import de.ostfalia.serp24.model.Consultant;
 import de.ostfalia.serp24.model.Customer;
 import de.ostfalia.serp24.model.Project;
+import de.ostfalia.serp24.model.ProjectConsultant;
 import de.ostfalia.serp24.repository.ConsultantRepository;
 import de.ostfalia.serp24.repository.ProjectRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProjectService {
@@ -40,6 +43,24 @@ public class ProjectService {
             throw new NotFoundException("Project not found with id: " + id);
         }else {
             Project projectToUpdate = findById(id);
+
+            //add all projectconsultants that are not already in the list
+            for(ProjectConsultant pc : project.getProjectStaff()){
+                pc.setProject(projectToUpdate);//setup to make them comparable projectId == projectId && consultantId == consultantId
+
+                if(!projectToUpdate.getProjectStaff().contains(pc)){
+                    projectToUpdate.getProjectStaff().add(pc);
+                }
+            }
+
+            //remove all projectconsultants that are currently in the list but not in the new one
+            for(ProjectConsultant pc : projectToUpdate.getProjectStaff()){
+                if(!project.getProjectStaff().contains(pc)){
+                    projectToUpdate.getProjectStaff().remove(pc);
+                }
+            }
+
+            project.setProjectStaff(null);//force skip on projectstaff in modelmapper
             modelMapper.map(project, projectToUpdate);
 
             return save(projectToUpdate);
@@ -55,7 +76,7 @@ public class ProjectService {
     public List<Project> findProjectsByConsultantId(Long id){
         Consultant consultant = consultantRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Consultant not found with id: " + id));
-        List<Long> projectIds = consultant.getBookedProjects().stream().map(Project::getId).toList();
+        List<Long> projectIds = consultant.getBookedProjects().stream().map(x -> x.getProject().getId()).toList();
         return projectRepository.findAllById(projectIds);
     }
 

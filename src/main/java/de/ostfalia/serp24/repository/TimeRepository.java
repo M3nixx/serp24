@@ -16,4 +16,5 @@ public interface TimeRepository extends JpaRepository<Entry, Long> {
     List<Project> findAllProjects();
     @Query("select distinct e.consultant from Entry e")
     List<Consultant> findAllConsultants();
+    Entry findByEntryIdAndAndConsultant_Id(Long entryId, Long consultantId);
 }

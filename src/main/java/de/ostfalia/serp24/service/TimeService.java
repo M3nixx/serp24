@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class TimeService {
     private final TimeRepository timeRepository;
+    private final ConsultantRepository consultantRepository;
     private ModelMapper modelMapper;
 
-    public TimeService(TimeRepository timeRepository, ModelMapper modelMapper) {
+    public TimeService(TimeRepository timeRepository, ModelMapper modelMapper, ConsultantRepository consultantRepository) {
         this.timeRepository = timeRepository;
         this.modelMapper = modelMapper;
+        this.consultantRepository = consultantRepository;
     }
 
     public List<Entry> findAll() {
@@ -31,10 +33,14 @@ public class TimeService {
     public List<Entry> findByConsultantId(Long id){
         return timeRepository.findByConsultantId(id);
     }
+    public Entry findByEntryIdAndConsultantId(Long entryId, Long consultantId){
+        return timeRepository.findByEntryIdAndAndConsultant_Id(entryId, consultantId);
+    }
 
-    public Entry saveByConsultantId(Long consultantId, Entry entry){
-        Consultant consultant = new Consultant();
-        consultant.setId(consultantId);
+    public Entry saveByConsultantId(Long consultantId, Entry entry) {
+        Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new NotFoundException("Consultant not found with id: " + consultantId));
+
         entry.setConsultant(consultant);
         return timeRepository.save(entry);
     }
@@ -44,8 +50,11 @@ public class TimeService {
             throw new NotFoundException("Entry not found with id: " + entryId);
         }else {
             Entry entryToUpdate = findById(entryId);
-            modelMapper.map(entry, entryToUpdate);
 
+
+
+
+            modelMapper.map(entry, entryToUpdate);
             return saveByConsultantId(consultantId, entryToUpdate);
         }
     }

@@ -16,14 +16,11 @@ public class Consultant {
     String name;
 
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "project_consultant",
-            joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "consultant_id", referencedColumnName = "id"))
-    List<Project> bookedProjects;
+    @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectConsultant> bookedProjects;
 
 
-    @OneToMany(mappedBy = "consultant")
+    @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Entry> entries;
 
 }

@@ -3,8 +3,10 @@ package de.ostfalia.serp24.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -16,20 +18,22 @@ public class Project {
     Long id;
     String name;
     @Column(name = "start_date")
-    LocalDateTime start;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    OffsetDateTime start;
     @Column(name = "end_date")
-    LocalDateTime end;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    OffsetDateTime end;
     String status;
 
     @ManyToOne
     @JoinColumn(name="customer_id")
     Customer customer;
 
-    @ManyToMany(mappedBy = "bookedProjects")
-    List<Consultant> projectStaff;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ProjectConsultant> projectStaff;
 
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Entry> entries;
 
 }

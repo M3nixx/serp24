@@ -52,7 +52,11 @@ public class CustomerService {
             throw new NotFoundException("Customer not found with id: " + id);
         }else {
             Customer customerToUpdate = findById(id);
-            modelMapper.map(customer, customerToUpdate);
+
+            customerToUpdate.setName(customer.getName());
+            customerToUpdate.setCity(customer.getCity());
+
+            //modelMapper.map(customer, customerToUpdate);
 
             return save(customerToUpdate);
         }
