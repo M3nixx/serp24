@@ -1,47 +1,127 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import GenericTable from "./GenericTable"
-import {GridActionsCellItem} from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
+import ConsultantDialog from "../dialogs/ConsultantDialog";
 
 const ConsultantsTable = () => {
-    //const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [editConsultant, setEditConsultant] = useState(null);
 
-    const columns = [
-        {field: "id", type: "number", headerName: "ID", width: 70},
-        {field: "name", headerName: "Name", width: 200},
-        {field: "projects", headerName: "Projects", width: 250},
-
-        //todo: edit einbindung pro table // kann raus wenn generic funktioniert
-        // { field: "edit", type: "actions",headerName: "edit", width: 100,
-        // getActions: (params) => [
-        //     <GridActionsCellItem
-        //         icon={<EditIcon />}
-        //         label="Bearbeiten"
-        //         onClick={() => {
-        //             console.log("Platzhalter für Edit:", params.row);
-        //         }}
-        //         showInMenu={false}
-        //     />,
-        // ],
-        // },
-    ];
-
+    // Fetch consultants from backend
     useEffect(() => {
-        // axios.get("https://api.example/")
-        //   .then(res => setRows(res.data))
-        //   .finally(() => setLoading(false));
+        const fetchConsultants = async () => {
+            setLoading(true);
+            try {
+                // Füge den shallow Parameter hinzu
+                const res = await axios.get("http://localhost:8080/api/v1/consultants?shallow=false");
+                console.log("GET Response from backend:", res.data);
 
-        setLoading(false);
+                const normalized = res.data.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    projects: c.bookedProjects ? c.bookedProjects.length + " projects" : "0 projects"
+                }));
+                console.log("Normalized consultants:", normalized);
+                setRows(normalized);
+            } catch (e) {
+                console.error("Error fetching consultants", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConsultants();
     }, []);
 
-    const rows = [
-        {id: 1, name: "Gustav", projects: "?-table"},
-        {id: 2, name: "Mrk", projects: "?-table"}
-    ];
+    // Unified save handler for both add (POST) and update (PUT)
+    const handleSaveConsultant = async (consultant) => {
+        try {
+            const payload = { name: consultant.name };
+            console.log("Sending payload:", payload);
 
-    return <GenericTable rows={rows} columns={columns} loading={loading}/>;
+            let response;
+            if (consultant.id && consultant.id > 0) {
+                // Update existing consultant
+                response = await axios.put(
+                    `http://localhost:8080/api/v1/consultants/${consultant.id}`,
+                    payload
+                );
+            } else {
+                // Add new consultant
+                response = await axios.post(
+                    "http://localhost:8080/api/v1/consultants",
+                    payload
+                );
+            }
+
+            console.log("POST/PUT Response:", response.data);
+
+            const normalized = {
+                id: response.data.id,
+                name: response.data.name,
+                projects: response.data.bookedProjects ? response.data.bookedProjects.length + " projects" : "0 projects"
+            };
+
+            console.log("Normalized new consultant:", normalized);
+
+            setRows(prev => {
+                const exists = prev.find(r => r.id === normalized.id);
+                if (exists) {
+                    // Update row
+                    return prev.map(r => r.id === normalized.id ? normalized : r);
+                } else {
+                    // Add new row
+                    return [...prev, normalized];
+                }
+            });
+        } catch (error) {
+            console.error("Error saving consultant", error);
+            console.error("Error response:", error.response?.data);
+        } finally {
+            setOpenDialog(false);
+            setEditConsultant(null);
+        }
+    };
+
+    const handleEditConsultant = (consultant) => {
+        setEditConsultant(consultant);
+        setOpenDialog(true);
+    };
+
+    const handleDeleteConsultant = async (id) => {
+        try {
+            await axios.delete(`http://localhost:8080/api/v1/consultants/${id}`);
+            setRows(prev => prev.filter(r => r.id !== id));
+        } catch (error) {
+            console.error("Error deleting consultant", error);
+        }
+    };
+
+    return (
+        <>
+            <GenericTable
+                rows={rows}
+                columns={[
+                    { field: "id", headerName: "ID", width: 70 },
+                    { field: "name", headerName: "Name", width: 200 },
+                    { field: "projects", headerName: "Projects", width: 250 }
+                ]}
+                loading={loading}
+                onAddNew={() => { setEditConsultant(null); setOpenDialog(true); }}
+                onEdit={handleEditConsultant}
+                onDelete={handleDeleteConsultant}
+                entityName="Consultant"
+            />
+
+            <ConsultantDialog
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                onSave={handleSaveConsultant}
+                initialData={editConsultant}
+            />
+        </>
+    );
 };
 
-export default ConsultantsTable;
+export default ConsultantsTable
