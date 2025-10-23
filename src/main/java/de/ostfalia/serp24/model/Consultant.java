@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Consultant {
+public class  Consultant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
