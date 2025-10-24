@@ -3,11 +3,9 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } 
 
 const ConsultantDialog = ({ open, onClose, onSave, initialData }) => {
     const [name, setName] = useState("");
-    const [projects, setProjects] = useState("");
 
     useEffect(() => {
         setName(initialData?.name || "");
-        setProjects(initialData?.projects || "");
     }, [initialData, open]);
 
     const handleSave = () => {
@@ -25,22 +23,15 @@ const ConsultantDialog = ({ open, onClose, onSave, initialData }) => {
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>{initialData ? "Edit Consultant" : "Add New Consultant"}</DialogTitle>
-            <DialogContent>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle>{initialData?.id ? "Edit Consultant" : "Add New Consultant"}</DialogTitle>
+            <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 1 }}>
                 <TextField
                     margin="dense"
                     label="Name"
                     fullWidth
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                />
-                <TextField
-                    margin="dense"
-                    label="Projects"
-                    fullWidth
-                    value={projects}
-                    onChange={(e) => setProjects(e.target.value)}
                 />
             </DialogContent>
             <DialogActions>

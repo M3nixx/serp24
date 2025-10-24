@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import GenericTable from "./GenericTable"
 import ConsultantDialog from "../dialogs/ConsultantDialog";
+import InnerTable from "./InnerTable";
+
 
 const ConsultantsTable = () => {
     const [rows, setRows] = useState([]);
@@ -21,7 +23,7 @@ const ConsultantsTable = () => {
                 const normalized = res.data.map(c => ({
                     id: c.id,
                     name: c.name,
-                    projects: c.bookedProjects ? c.bookedProjects.length + " projects" : "0 projects"
+                    projects: c.bookedProjects || []
                 }));
                 console.log("Normalized consultants:", normalized);
                 setRows(normalized);
@@ -60,7 +62,7 @@ const ConsultantsTable = () => {
             const normalized = {
                 id: response.data.id,
                 name: response.data.name,
-                projects: response.data.bookedProjects ? response.data.bookedProjects.length + " projects" : "0 projects"
+                projects: response.data.bookedProjects || []
             };
 
             console.log("Normalized new consultant:", normalized);
@@ -105,7 +107,12 @@ const ConsultantsTable = () => {
                 columns={[
                     { field: "id", headerName: "ID", width: 70 },
                     { field: "name", headerName: "Name", width: 200 },
-                    { field: "projects", headerName: "Projects", width: 250 }
+                    {
+                        field: "projects",
+                        headerName: "Projects",
+                        width: 400,
+                        renderCell: (params) => <InnerTable data={params.value} />  // NEU: renderCell
+                    }
                 ]}
                 loading={loading}
                 onAddNew={() => { setEditConsultant(null); setOpenDialog(true); }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import GenericTable from "./GenericTable";
 import ProjectDialog from "../dialogs/ProjectDialog";
+import InnerTable from "./InnerTable";
 
 const ProjectsTable = () => {
     const [rows, setRows] = useState([]);
@@ -140,14 +141,14 @@ const ProjectsTable = () => {
         {
             field: "customer",
             headerName: "Customer",
-            width: 250,
-            renderCell: (params) => params.value.length > 0 ? params.value[0].name : ""
+            width: 300,
+            renderCell: (params) => <InnerTable data={params.value} />,
         },
         {
             field: "staff",
             headerName: "Project Staff",
-            width: 300,
-            renderCell: (params) => params.value.map(c => c.name).join(", ")
+            width: 400,
+            renderCell: (params) => <InnerTable data={params.value} />,
         }
     ];
 
