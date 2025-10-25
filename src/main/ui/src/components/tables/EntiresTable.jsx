@@ -103,8 +103,12 @@ const EntriesTable = () => {
             const payload = {
                 date: entry.date ? entry.date.toISOString() : null,
                 hours: Number(entry.hours),
-                projectId: entry.project[0].projectId || entry.project[0].id,
-                consultantId: entry.consultant[0].consultantId || entry.consultant[0].id,
+                project: {
+                    projectId: entry.project[0].projectId || entry.project[0].id,
+                },
+                consultant: {
+                    consultantId: entry.consultant[0].consultantId || entry.consultant[0].id,
+                }
             };
 
             console.log("Payload to send:", payload);
@@ -136,6 +140,20 @@ const EntriesTable = () => {
                 project: response.data.project ? [response.data.project] : [],
                 consultant: response.data.consultant ? [response.data.consultant] : [],
             };
+
+            // const normalized = {
+            //     id: response.data.entryId,
+            //     date: response.data.date ? new Date(response.data.date) : null,
+            //     hours: response.data.hours,
+            //     project: response.data.project ? {
+            //         projectId: response.data.project.projectId,
+            //         name: response.data.project.name
+            //     } : [],
+            //     consultant: response.data.consultant ? {
+            //         consultantId: response.data.consultant.consultantId,
+            //         name: response.data.consultant.name
+            //     } : []
+            // };
 
             setRows(prev => {
                 const exists = prev.find(r => r.id === normalized.id);
