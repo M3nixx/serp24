@@ -68,16 +68,19 @@ const GenericTable = ({
                 marginTop: "16px",
                 marginLeft: "16px"
             }}>
+
                 <GenericButton
                     label="New"
                     color="primary"
                     onClick={onAddNew}
                 />
+                {onDelete && (
                 <GenericButton
                     label="Delete"
                     color="secondary"
                     onClick={() => setOpenDeleteDialog(true)}
                 />
+                )}
                 {OptDropdown && OptDropdown}
             </div>
 

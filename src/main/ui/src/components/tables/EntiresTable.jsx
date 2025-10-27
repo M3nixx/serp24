@@ -214,7 +214,7 @@ const EntriesTable = () => {
                 getRowId={(row) => row.id}
                 onAddNew={handleAddNew}
                 onEdit={handleEditEntry}
-                onDelete={handleDeleteEntry}
+                // onDelete={handleDeleteEntry} // no API for delete
                 entityName="Entry"
                 OptDropdown={
                     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
