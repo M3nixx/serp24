@@ -1,10 +1,11 @@
 import React from 'react';
 import ProjectsTable from "../components/tables/ProjectsTable";
+import {Typography} from "@mui/material";
 
 const ProjectsPage = () => {
     return (
         <div>
-            <h2>Projects</h2>
+            <Typography variant="h2">Projects</Typography>
             <ProjectsTable/>
         </div>
     );

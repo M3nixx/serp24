@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
+public class ProjectApiDelegateImpl implements ProjectsApiDelegate {
     private ProjectService projectService;
     private ModelMapper modelMapper;
 
@@ -25,7 +26,7 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
         List<ProjectDTO> result;
 
         result = projects.stream()
-                .map(project -> modelMapper.map(project, ProjectDTO.class))
+                .map(this::mapToDTO)
                 .toList();
 
 
@@ -37,21 +38,27 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
         Project project = modelMapper.map(ProjectDTO, Project.class);
         project = projectService.save(project);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(modelMapper.map(project, ProjectDTO.class));
+                .body(mapToDTO(project));
     }
 
     @Override
     public ResponseEntity<ProjectDTO> getProject(Long id) {
         Project project = projectService.findById(id);
 
-        return ResponseEntity.ok(modelMapper.map(project, ProjectDTO.class));
+        return ResponseEntity.ok(mapToDTO(project));
     }
 
     @Override
     public ResponseEntity<ProjectDTO> updateProject(Long id, ProjectDTO ProjectDTO) {
         Project project = modelMapper.map(ProjectDTO, Project.class);
+
+        // fix ModelMapper empty list mapping to null
+        if (ProjectDTO.getProjectStaff() != null && ProjectDTO.getProjectStaff().isEmpty()) {
+            project.setProjectStaff(new ArrayList<>());
+        }
+
         project = projectService.updateById(id, project);
-        return ResponseEntity.ok(modelMapper.map(project, ProjectDTO.class));
+        return ResponseEntity.ok(mapToDTO(project));
     }
 
     @Override
@@ -66,7 +73,7 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
         List<ProjectDTO> result;
 
         result = projects.stream()
-                .map(project -> modelMapper.map(project, ProjectDTO.class))
+                .map(this::mapToDTO)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -95,4 +102,37 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
 
         return ResponseEntity.ok(result);
     }
+
+    public ProjectDTO mapToDTO(Project project) {
+        ProjectDTO dto = new ProjectDTO();
+        dto.setId(project.getId());
+        dto.setName(project.getName());
+        dto.setStart(project.getStart());
+        dto.setEnd(project.getEnd());
+        dto.setStatus(project.getStatus());
+
+        // Map customer if present
+        if (project.getCustomer() != null) {
+            ProjectCustomerDTO customerDTO = new ProjectCustomerDTO();
+            customerDTO.setCustomerId(project.getCustomer().getCustomerId());
+            customerDTO.setName(project.getCustomer().getName());
+            dto.setCustomer(customerDTO);
+        }
+
+        // Map consultants through the join entity
+        List<ProjectConsultantDTO> staff = project.getProjectStaff().stream()
+                .map(pa -> {
+                    ProjectConsultantDTO pcDto = new ProjectConsultantDTO();
+                    pcDto.setConsultantId(pa.getConsultant().getId());
+                    pcDto.setName(pa.getConsultant().getName());
+                    return pcDto;
+                })
+                .toList();
+
+        dto.setProjectStaff(staff);
+
+        return dto;
+    }
 }
+
+

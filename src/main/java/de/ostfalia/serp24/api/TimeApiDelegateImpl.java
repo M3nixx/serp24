@@ -26,7 +26,7 @@ public class TimeApiDelegateImpl implements TimeApiDelegate{
         List<EntryDTO> result;
 
         result = entries.stream()
-                .map(entry -> modelMapper.map(entry, EntryDTO.class))
+                .map(this::mapToDTO)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -37,7 +37,7 @@ public class TimeApiDelegateImpl implements TimeApiDelegate{
         List<EntryDTO> result;
 
         result = entries.stream()
-                .map(entry -> modelMapper.map(entry, EntryDTO.class))
+                .map(this::mapToDTO)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -48,14 +48,14 @@ public class TimeApiDelegateImpl implements TimeApiDelegate{
         Entry entry = modelMapper.map(entryDTO, Entry.class);
         entry = timeService.saveByConsultantId(consultantId, entry);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(modelMapper.map(entry, EntryDTO.class));
+                .body(mapToDTO(entry));
     }
     @Override
     public ResponseEntity<EntryDTO> updateEntry(Long consultantId, Long entryId, EntryDTO entryDTO){
         Entry entry = modelMapper.map(entryDTO, Entry.class);
         entry = timeService.updateById(consultantId, entryId, entry);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(modelMapper.map(entry, EntryDTO.class));
+                .body(mapToDTO(entry));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class TimeApiDelegateImpl implements TimeApiDelegate{
         List<EntryProjectDTO> result;
 
         result = projects.stream()
-                .map(project -> modelMapper.map(project, EntryProjectDTO.class))
+                .map(this::mapToDTO)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -80,5 +80,58 @@ public class TimeApiDelegateImpl implements TimeApiDelegate{
                 .toList();
 
         return ResponseEntity.ok(result);
+    }
+    public EntryDTO mapToDTO(Entry entry) {
+        EntryDTO dto = new EntryDTO();
+        dto.setEntryId(entry.getEntryId());
+        dto.setDate(entry.getDate());
+        dto.setHours(entry.getHours());
+
+        // Map customer if present
+        if (entry.getConsultant() != null) {
+            EntryConsultantDTO entryConsultantDTO = new EntryConsultantDTO();
+            entryConsultantDTO.setConsultantId(entry.getConsultant().getId());
+            entryConsultantDTO.setName(entry.getConsultant().getName());
+            dto.setConsultant(entryConsultantDTO);
+        }
+
+        if(entry.getProject() != null){
+            EntryProjectDTO entryProjectDTO = new EntryProjectDTO();
+            entryProjectDTO.setProjectId(entry.getProject().getId());
+            entryProjectDTO.setName(entry.getProject().getName());
+            dto.setProject(entryProjectDTO);
+
+            // Map consultants through the join entity
+            List<EntryConsultantDTO> staff = entry.getProject().getProjectStaff().stream()
+                    .map(pc -> {
+                        EntryConsultantDTO ecDto = new EntryConsultantDTO();
+                        ecDto.setConsultantId(pc.getConsultant().getId());
+                        ecDto.setName(pc.getConsultant().getName());
+                        return ecDto;
+                    })
+                    .toList();
+
+            dto.getProject().setProjectStaff(staff);
+
+        }
+        return dto;
+    }
+    public EntryProjectDTO mapToDTO(Project project) {
+        EntryProjectDTO dto = new EntryProjectDTO();
+        dto.setProjectId(project.getId());
+        dto.setName(project.getName());
+
+        // Map consultants through the join entity
+        List<EntryConsultantDTO> staff = project.getProjectStaff().stream()
+                .map(pc -> {
+                    EntryConsultantDTO ecDto = new EntryConsultantDTO();
+                    ecDto.setConsultantId(pc.getConsultant().getId());
+                    ecDto.setName(pc.getConsultant().getName());
+                    return ecDto;
+                })
+                .toList();
+        dto.setProjectStaff(staff);
+
+        return dto;
     }
 }
