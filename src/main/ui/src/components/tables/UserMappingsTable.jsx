@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import apiClient from '../api/apiClient';
 import GenericTable from "./GenericTable";
 import UserMappingDialog from "../dialogs/UserMappingDialog";
+import { useNavigate } from "react-router-dom";
 
 const UserMappingsTable = () => {
+    const navigate = useNavigate();
+
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
@@ -23,12 +26,17 @@ const UserMappingsTable = () => {
                 setRows(normalized);
             } catch (e) {
                 console.error("Error fetching users", e);
+                //navigate("/home"); 
+                const status = e.response?.status || e.request?.status;
+                if (status === 403) {
+                    navigate("/home", { replace: true });
+                }
             } finally {
                 setLoading(false);
             }
         };
         fetchUsers();
-    }, []);
+    }, [navigate]);
 
     const handleSaveUser = async (user) => {
         try {
