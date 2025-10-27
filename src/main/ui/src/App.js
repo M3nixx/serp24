@@ -87,7 +87,7 @@ function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/v1/user", {
+        fetch("http://localhost:8080/user", {
           method: "GET",
           credentials: "include", // <-- sehr wichtig
           headers: {
@@ -115,7 +115,7 @@ function App() {
   return user ? (
       <Router>
           <ThemeProvider theme={themeTemplate}>
-              <AppBarCustom userName="Test User" onLogout={handleLogout} />
+              <AppBarCustom userName={user.name} onLogout={handleLogout} />
 
               <Routes>
                   <Route path="/home" element={<HomePage />} />

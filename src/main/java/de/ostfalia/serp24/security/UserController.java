@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("")
 public class UserController {
 
 
@@ -22,7 +24,13 @@ public class UserController {
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("name", oidcUser.getFullName());
         userInfo.put("email", oidcUser.getEmail());
-        userInfo.put("alles", oidcUser.getClaims());
+
+        List<String> roles = oidcUser.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.toList());
+
+        userInfo.put("roles", roles);
+
         return userInfo;
     }
 }
