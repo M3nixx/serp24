@@ -6,6 +6,7 @@ import de.ostfalia.serp24.model.Customer;
 import de.ostfalia.serp24.model.Project;
 import de.ostfalia.serp24.model.ProjectConsultant;
 import de.ostfalia.serp24.repository.ConsultantRepository;
+import de.ostfalia.serp24.repository.CustomerRepository;
 import de.ostfalia.serp24.repository.ProjectRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,17 @@ import java.util.List;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ConsultantRepository consultantRepository;
+    private final CustomerRepository customerRepository;
     private ModelMapper modelMapper;
 
-    public ProjectService(ProjectRepository projectRepository, ModelMapper modelMapper, ConsultantRepository consultantRepository) {
+    public ProjectService(ProjectRepository projectRepository,
+                          ModelMapper modelMapper,
+                          ConsultantRepository consultantRepository,
+                          CustomerRepository customerRepository) {
         this.projectRepository = projectRepository;
         this.modelMapper = modelMapper;
         this.consultantRepository = consultantRepository;
+        this.customerRepository = customerRepository;
     }
 
     public List<Project> findAll() {
@@ -37,6 +43,10 @@ public class ProjectService {
                 pc.setConsultant(managedConsultant);
                 pc.setProject(project);
             }
+        }
+        if(project.getCustomer() != null && project.getCustomer().getName() == null){
+            project.setCustomer(customerRepository.findById(project.getCustomer().getCustomerId())
+                    .orElseThrow(() -> new NotFoundException("Customer not found")));
         }
         return projectRepository.save(project);
     }
@@ -90,7 +100,10 @@ public class ProjectService {
                     }
                 }
             }
-
+            if(projectToUpdate.getCustomer() != null && projectToUpdate.getCustomer().getName() == null){
+                projectToUpdate.setCustomer(customerRepository.findById(projectToUpdate.getCustomer().getCustomerId())
+                        .orElseThrow(() -> new NotFoundException("Customer not found")));
+            }
             return projectRepository.save(projectToUpdate);
         }
     }
