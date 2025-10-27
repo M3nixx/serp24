@@ -1,6 +1,7 @@
 package de.ostfalia.serp24;
 
 import de.ostfalia.serp24.Exceptions.NotFoundException;
+import de.ostfalia.serp24.Exceptions.UnauthorizedException;
 import de.ostfalia.serp24.model.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,5 +36,10 @@ public class GlobalExceptionHandler {
         error.code(HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.message("An unexpected error occurred");
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    // Handle Unauth Excep
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 }
