@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import GenericTable from "./GenericTable"
 import ConsultantDialog from "../dialogs/ConsultantDialog";
 import InnerTable from "./InnerTable";
@@ -17,7 +17,7 @@ const ConsultantsTable = () => {
             setLoading(true);
             try {
                 // add shallow parameter
-                const res = await axios.get("http://localhost:8080/api/v1/consultants?shallow=false");
+                const res = await apiClient.get("/consultants?shallow=false");
                 console.log("GET Response from backend:", res.data);
 
                 const normalized = res.data.map(c => ({
@@ -45,14 +45,14 @@ const ConsultantsTable = () => {
             let response;
             if (consultant.id && consultant.id > 0) {
                 // Update existing consultant
-                response = await axios.put(
-                    `http://localhost:8080/api/v1/consultants/${consultant.id}`,
+                response = await apiClient.put(
+                    `/consultants/${consultant.id}`,
                     payload
                 );
             } else {
                 // Add new consultant
-                response = await axios.post(
-                    "http://localhost:8080/api/v1/consultants",
+                response = await apiClient.post(
+                    "/consultants",
                     payload
                 );
             }
@@ -93,7 +93,7 @@ const ConsultantsTable = () => {
 
     const handleDeleteConsultant = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/v1/consultants/${id}`);
+            await apiClient.delete(`/consultants/${id}`);
             setRows(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting consultant", error);

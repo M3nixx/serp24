@@ -21,16 +21,19 @@ public class UserController {
         if (oidcUser == null) {
             throw new RuntimeException("User not authenticated");
         }
+
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("name", oidcUser.getFullName());
         userInfo.put("email", oidcUser.getEmail());
 
-        List<String> roles = oidcUser.getAuthorities().stream()
+        List<String> authorities = oidcUser.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .collect(Collectors.toList());
+        userInfo.put("authorities", authorities);
 
-        userInfo.put("roles", roles);
+        userInfo.put("claims", oidcUser.getClaims());
 
         return userInfo;
     }
+
 }

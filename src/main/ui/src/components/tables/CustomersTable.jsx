@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import GenericTable from "./GenericTable"
 import CustomerDialog from "../dialogs/CustomerDialog";
 
@@ -14,7 +14,7 @@ const CustomersTable = () => {
         const fetchCustomers = async () => {
             setLoading(true);
             try {
-                const res = await axios.get("http://localhost:8080/api/v1/customers");
+                const res = await apiClient.get("/customers");
                 const normalized = res.data.map(c => ({
                     id: c.customerId,
                     name: c.name,
@@ -36,14 +36,14 @@ const CustomersTable = () => {
             let response;
             if (customer.id) {
                 // Update existing customer
-                response = await axios.put(
-                    `http://localhost:8080/api/v1/customers/${customer.id}`,
+                response = await apiClient.put(
+                    `/customers/${customer.id}`,
                     { name: customer.name, city: customer.city }
                 );
             } else {
                 // Add new customer
-                response = await axios.post(
-                    "http://localhost:8080/api/v1/customers",
+                response = await apiClient.post(
+                    "/customers",
                     { name: customer.name, city: customer.city }
                 );
             }
@@ -79,7 +79,7 @@ const CustomersTable = () => {
 
     const handleDeleteCustomer = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/v1/customers/${id}`);
+            await apiClient.delete(`/customers/${id}`);
             setRows(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting customer", error);

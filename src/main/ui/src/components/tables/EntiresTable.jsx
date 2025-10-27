@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import GenericTable from "./GenericTable";
 import GenericDropdown from "../dropdown/GenericDropdown";
 import InnerTable from "./InnerTable";
@@ -19,7 +19,7 @@ const EntriesTable = () => {
         const fetchEntries = async () => {
             setLoading(true);
             try {
-                const res = await axios.get("http://localhost:8080/api/v1/time/entries");
+                const res = await apiClient.get("/time/entries");
                 console.log("GET Entries Response:", res.data);
 
                 // Normalize backend response to table rows
@@ -101,14 +101,14 @@ const EntriesTable = () => {
             let response;
             if (entry.id) {
                 // Update: PUT /time/entries/{consultantId}/{entryId}
-                response = await axios.put(
-                    `http://localhost:8080/api/v1/time/entries/${consultantId}/${entry.id}`,
+                response = await apiClient.put(
+                    `/time/entries/${consultantId}/${entry.id}`,
                     payload
                 );
             } else {
                 // Create: POST /time/entries/{consultantId}
-                response = await axios.post(
-                    `http://localhost:8080/api/v1/time/entries/${consultantId}`,
+                response = await apiClient.post(
+                    `/time/entries/${consultantId}`,
                     payload
                 );
             }
@@ -169,7 +169,7 @@ const EntriesTable = () => {
 
             const consultantId = entry.consultant[0].consultantId || entry.consultant[0].id;
 
-            await axios.delete(`http://localhost:8080/api/v1/time/entries/${consultantId}/${id}`);
+            await apiClient.delete(`/time/entries/${consultantId}/${id}`);
             setRows(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting entry", error);

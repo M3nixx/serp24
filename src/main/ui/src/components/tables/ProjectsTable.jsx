@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import GenericTable from "./GenericTable";
 import ProjectDialog from "../dialogs/ProjectDialog";
 import InnerTable from "./InnerTable";
@@ -15,7 +15,7 @@ const ProjectsTable = () => {
         const fetchProjects = async () => {
             setLoading(true);
             try {
-                const res = await axios.get("http://localhost:8080/api/v1/projects?shallow=false");
+                const res = await apiClient.get("/projects?shallow=false");
                 console.log("GET Projects Response:", res.data);
 
                 // Normalize backend response to table rows
@@ -62,14 +62,14 @@ const ProjectsTable = () => {
             let response;
             if (project.id) {
                 // Update existing project
-                response = await axios.put(
-                    `http://localhost:8080/api/v1/projects/${project.id}`,
+                response = await apiClient.put(
+                    `/projects/${project.id}`,
                     payload
                 );
             } else {
                 // Add new project
-                response = await axios.post(
-                    "http://localhost:8080/api/v1/projects",
+                response = await apiClient.post(
+                    "/projects",
                     payload
                 );
             }
@@ -113,7 +113,7 @@ const ProjectsTable = () => {
 
     const handleDeleteProject = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/v1/projects/${id}`);
+            await apiClient.delete(`/projects/${id}`);
             setRows(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting project", error);
