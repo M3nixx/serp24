@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from '../api/apiClient';
 import GenericTable from "./GenericTable";
 import UserMappingDialog from "../dialogs/UserMappingDialog";
 
@@ -13,7 +13,7 @@ const UserMappingsTable = () => {
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const res = await axios.get("http://localhost:8080/api/v1/users");
+                const res = await apiClient.get("/users");
                 const normalized = res.data.map(u => ({
                     id: u.id,
                     name: u.name,
@@ -35,8 +35,8 @@ const UserMappingsTable = () => {
             let response;
             if (user.id) {
                 // update
-                response = await axios.put(
-                    `http://localhost:8080/api/v1/users/${user.id}`,
+                response = await apiClient.put(
+                    `/users/${user.id}`,
                     {
                         name: user.name,
                         consultantID: user.consultantID,
@@ -45,8 +45,8 @@ const UserMappingsTable = () => {
                 );
             } else {
                 // create
-                response = await axios.post(
-                    "http://localhost:8080/api/v1/users",
+                response = await apiClient.post(
+                    "/users",
                     {
                         name: user.name,
                         consultantID: user.consultantID,
@@ -85,7 +85,7 @@ const UserMappingsTable = () => {
 
     const handleDeleteUser = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/v1/users/${id}`);
+            await apiClient.delete(`/users/${id}`);
             setRows(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting user", error);
