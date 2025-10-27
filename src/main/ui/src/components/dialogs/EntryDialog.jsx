@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 
 const EntryDialog = ({ open, onClose, onSave, initialData }) => {
     const [date, setDate] = useState("");
@@ -22,11 +22,11 @@ const EntryDialog = ({ open, onClose, onSave, initialData }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const projResponse = await axios.get("http://localhost:8080/api/v1/projects?shallow=true");
+                const projResponse = await apiClient.get("/projects?shallow=true");
                 console.log("Projects loaded:", projResponse.data);
                 setProjects(projResponse.data);
 
-                const consResponse = await axios.get("http://localhost:8080/api/v1/consultants?shallow=true");
+                const consResponse = await apiClient.get("/consultants?shallow=true");
                 console.log("Consultants loaded:", consResponse.data);
                 setConsultants(consResponse.data);
             } catch (e) {
