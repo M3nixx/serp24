@@ -46,7 +46,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, LogoutSuccessHandler oidcLogoutSuccessHandler) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(withDefaults())
+                .csrf(crsf -> crsf.disable())
                 .authorizeHttpRequests(authorize -> authorize
 
                         //.anyRequest().permitAll()
