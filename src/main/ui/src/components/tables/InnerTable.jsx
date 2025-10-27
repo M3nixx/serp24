@@ -1,13 +1,22 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import {Table, TableBody, TableCell, TableHead, TableRow} from '@mui/material';
 
-const InnerTable = ({ data }) => {
+const InnerTable = ({data}) => {
     if (!data || data.length === 0) {
         return <span>-</span>;
     }
 
     return (
-        <Table size="small" sx={{ minWidth: 200 }}>
+        <Table
+            size="small"
+            sx={{
+                minWidth: 200,
+                margin: 0,
+                '& .MuiTableCell-root': {
+                    padding: '6px 8px',
+                }
+            }}
+        >
             <TableHead>
                 <TableRow>
                     <TableCell>ID</TableCell>
@@ -16,7 +25,6 @@ const InnerTable = ({ data }) => {
             </TableHead>
             <TableBody>
                 {data.map((item, index) => {
-                    // extract ID through Obj.typ
                     const id = item.id || item.customerId || item.consultantId || item.projectId || index;
                     const name = item.name || '-';
 

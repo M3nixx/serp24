@@ -4,23 +4,29 @@ import EditIcon from "@mui/icons-material/Edit";
 import GenericButton from "../button/GenericButton";
 import GenericDeleteDialog from "../dialogs/GenericDeleteDialog";
 
-const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdown, onAddNew, onEdit, onDelete, entityName}) => {
+const GenericTable = ({
+                          rows,
+                          columns,
+                          loading = false,
+                          pageSize = 10,
+                          OptDropdown,
+                          onAddNew,
+                          onEdit,
+                          onDelete,
+                          entityName
+                      }) => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
-    const baseHeight = 120;
-    const rowHeight = 52;
-    const totalHeight = rows.length * rowHeight + baseHeight;
 
     const columnsWithActions = [
         ...columns,
         {
             field: "edit",
             type: "actions",
-            headerName: "edit",
+            headerName: "Edit",
             width: 100,
             getActions: (params) => [
                 <GridActionsCellItem
-                    icon={<EditIcon />}
+                    icon={<EditIcon/>}
                     label="Edit"
                     onClick={() => onEdit && onEdit(params.row)}
                     showInMenu={false}
@@ -30,11 +36,12 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
     ];
 
     return (
-        <div style={{width: "100%", margin: "20px 0", height: totalHeight}}>
+        <div>
             <DataGrid
                 autoHeight
                 autoPageSize={false}
                 disableColumnMenu
+                disableColumnResize
                 rows={rows}
                 columns={columnsWithActions}
                 getRowId={(row) => row.id}
@@ -46,14 +53,21 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
                         alignItems: 'start',
                         paddingTop: 1,
                         paddingBottom: 1,
-                    }}}
+                    }
+                }}
                 disableRowSelectionOnClick
                 pageSizeOptions={[10, 20, 30, 50]}
                 initialState={{
                     pagination: {paginationModel: {pageSize}},
                 }}
             />
-            <div style={{marginLeft: "auto", display: "flex", gap: 8, alignItems: "center"}}>
+            <div style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+                marginTop: "16px",
+                marginLeft: "16px"
+            }}>
                 <GenericButton
                     label="New"
                     color="primary"
@@ -67,7 +81,6 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
                 {OptDropdown && OptDropdown}
             </div>
 
-            {/* Generic Delete Dialog */}
             {onDelete && (
                 <GenericDeleteDialog
                     open={openDeleteDialog}
@@ -77,8 +90,7 @@ const GenericTable = ({rows, columns, loading = false, pageSize = 10, OptDropdow
                 />
             )}
         </div>
-
     );
 };
 
-export default GenericTable
+export default GenericTable;

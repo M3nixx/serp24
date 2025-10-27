@@ -1,10 +1,11 @@
 import React from 'react';
 import UserMappingsTable from "../components/tables/UserMappingsTable";
+import {Typography} from "@mui/material";
 
 const UserMapping = () => {
     return (
-        <div style={{margin: "20px"}}>
-            <h2>User Mapping</h2>
+        <div>
+            <Typography variant="h2">User Mapping</Typography>
             <UserMappingsTable/>
         </div>
     );

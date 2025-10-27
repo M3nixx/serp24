@@ -16,7 +16,7 @@ const ConsultantsTable = () => {
         const fetchConsultants = async () => {
             setLoading(true);
             try {
-                // Füge den shallow Parameter hinzu
+                // add shallow parameter
                 const res = await axios.get("http://localhost:8080/api/v1/consultants?shallow=false");
                 console.log("GET Response from backend:", res.data);
 

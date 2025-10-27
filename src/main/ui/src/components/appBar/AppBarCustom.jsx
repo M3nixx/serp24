@@ -1,6 +1,6 @@
 import React from 'react';
 import {AppBar, Toolbar, Button, Typography} from '@mui/material';
-import {Link} from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
 import GenericButton from "../button/GenericButton";
 
 const UserButtons = ({userName, onLogout}) => (
@@ -27,20 +27,13 @@ const AppBarCustom = ({userName, onLogout}) => {
                     <Button
                         key={link.name}
                         color="inherit"
-                        component={Link}
+                        component={NavLink}
                         to={link.path}
                     >
                         {link.name}
                     </Button>
                 ))}
                 <UserButtons userName={userName} onLogout={onLogout}/>
-
-                {/* todo: erstes einbinden der buttons // kann raus wenn generic funktioniert*/}
-                {/*    <div style={{ marginLeft: "auto" }}>*/}
-                {/*    <Button variant="contained" color="secondary" disabled="1">{userName}</Button>*/}
-                {/*    <Button variant="contained" color="secondary" onClick={onLogout}>Logout</Button>*/}
-                {/*    </div>*/}
-
             </Toolbar>
         </AppBar>
     );

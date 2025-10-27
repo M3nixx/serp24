@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
+public class ProjectApiDelegateImpl implements ProjectsApiDelegate {
     private ProjectService projectService;
     private ModelMapper modelMapper;
 
@@ -50,6 +51,12 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
     @Override
     public ResponseEntity<ProjectDTO> updateProject(Long id, ProjectDTO ProjectDTO) {
         Project project = modelMapper.map(ProjectDTO, Project.class);
+
+        // fix ModelMapper empty list mapping to null
+        if (ProjectDTO.getProjectStaff() != null && ProjectDTO.getProjectStaff().isEmpty()) {
+            project.setProjectStaff(new ArrayList<>());
+        }
+
         project = projectService.updateById(id, project);
         return ResponseEntity.ok(mapToDTO(project));
     }
@@ -95,6 +102,7 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate{
 
         return ResponseEntity.ok(result);
     }
+
     public ProjectDTO mapToDTO(Project project) {
         ProjectDTO dto = new ProjectDTO();
         dto.setId(project.getId());

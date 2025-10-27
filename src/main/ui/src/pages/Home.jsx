@@ -1,9 +1,10 @@
 import React from 'react';
+import {Typography} from "@mui/material";
 
 const Home = () => {
     return (
-        <div style={{margin: "20px"}}>
-            <h2>Willkommen zu SERP!</h2>
+        <div>
+            <Typography variant="h2">Willkommen zu SERP!</Typography>
         </div>
     );
 };

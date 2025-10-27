@@ -16,7 +16,7 @@ public class Consultant {
     String name;
 
 
-    @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "consultant") // no cascade/orphanRemoval on inverse
     private List<ProjectConsultant> bookedProjects;
 
 

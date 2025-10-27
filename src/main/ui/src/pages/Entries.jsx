@@ -1,10 +1,11 @@
 import React from 'react';
 import EntriesTable from "../components/tables/EntiresTable";
+import {Typography} from "@mui/material";
 
 const Entries = () => {
     return (
-        <div style={{margin: "20px"}}>
-            <h2>Entries</h2>
+        <div>
+            <Typography variant="h2">Entries</Typography>
             <EntriesTable/>
         </div>
     );

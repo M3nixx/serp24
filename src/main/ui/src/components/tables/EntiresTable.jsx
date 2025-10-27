@@ -22,24 +22,6 @@ const EntriesTable = () => {
                 const res = await axios.get("http://localhost:8080/api/v1/time/entries");
                 console.log("GET Entries Response:", res.data);
 
-                // dummies data
-                // const dummyData = [
-                //     {
-                //         id: 1,
-                //         date: "2025-02-20T13:12:13",
-                //         hours: 4,
-                //         project: { id: 1, name: "P1" },
-                //         consultant: { id: 1, name: "con1" }
-                //     },
-                //     {
-                //         id: 2,
-                //         date: "2025-02-20T12:13:12",
-                //         hours: 3,
-                //         project: { id: 2, name: "P2" },
-                //         consultant: { id: 2, name: "con2" }
-                //     }
-                // ];
-
                 // Normalize backend response to table rows
                 const normalized = res.data.map(e => ({
                     id: e.entryId,  // WICHTIG: entryId im DTO!
