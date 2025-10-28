@@ -71,13 +71,19 @@ public class TimeService {
     }
 
     public Entry updateById(Long consultantId, Long entryId, Entry entry, String externalUserId) {
-        // check user authorization
-        validateUserAccess(externalUserId, consultantId);
-
         if (!timeRepository.existsById(entryId)) {
             throw new NotFoundException("Entry not found with id: " + entryId);
         }else {
             Entry entryToUpdate = findById(entryId);
+
+            // check user authorization by the consultant id in the entry before the update
+            validateUserAccess(externalUserId, entryToUpdate.getConsultant().getId());
+
+            //force skip on consultant since updating the consultant of an entry is not possible
+            entry.setConsultant(null);
+            if(entry.getProject() != null){
+                entryToUpdate.setProject(entry.getProject());
+            }
             modelMapper.map(entry, entryToUpdate);
             return saveByConsultantId(consultantId, entryToUpdate, externalUserId);
         }

@@ -54,7 +54,12 @@ const ProjectsTable = () => {
                 customer: project.customer && project.customer.length > 0
                     ? { customerId: project.customer[0].customerId || project.customer[0].id }
                     : null,
-                projectStaff: project.staff ? project.staff.map(c => ({ consultantId: c.consultantId || c.id })) : []
+                // projectStaff: project.staff ? project.staff.map(c => ({ consultantId: c.consultantId || c.id })) : []
+                projectStaff: project.staff ?
+                    project.staff.map(s => ({
+                        consultantId: s.consultantId || s.id,
+                        name: s.name
+                    })) : []
             };
 
             console.log("Payload to send to backend:", payload);

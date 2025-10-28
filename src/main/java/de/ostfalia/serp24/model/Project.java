@@ -29,7 +29,7 @@ public class Project {
     @JoinColumn(name="customer_id")
     Customer customer;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.MERGE, orphanRemoval = true)
     List<ProjectConsultant> projectStaff;
 
 
