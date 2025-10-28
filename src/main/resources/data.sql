@@ -2,7 +2,7 @@ INSERT INTO customer (name, city) VALUES ('Marco', 'Wolfen');
 INSERT INTO customer (name, city) VALUES ('Dennis', 'Büttel');
 INSERT INTO customer (name, city) VALUES ('Nils', 'Braunschweig');
 
-INSERT INTO app_user (name, consultantid, externalid) VALUES ('Loxa7881', 1, 'cnc_group_04@hgroennigeroutlook.onmicrosoft.com');
+-- INSERT INTO app_user (name, consultantid, externalid) VALUES ('Loxa7881', 1, 'cnc_group_04@hgroennigeroutlook.onmicrosoft.com');
 INSERT INTO app_user (name, consultantid, externalid) VALUES ('Vabu4227', 2, 'testuser_04@hgroennigeroutlook.onmicrosoft.com');
 INSERT INTO app_user (name, consultantid, externalid) VALUES ('Muca3922', 3, 'testadmin04@hgroennigeroutlook.onmicrosoft.com');
 

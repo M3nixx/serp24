@@ -39,17 +39,17 @@ public class ConsultantService {
         }else {
             Consultant consultantToUpdate = findById(id);
 
-            //add all projectconsultants that are not already in the list
-            for(ProjectConsultant pc : consultant.getBookedProjects()){
-                pc.setConsultant(consultantToUpdate);//setup to make them comparable projectId == projectId && consultantId == consultantId
-
-                if(!consultantToUpdate.getBookedProjects().contains(pc)){
-                    consultantToUpdate.getBookedProjects().add(pc);
-                }
-            }
-
-            //remove all projectconsultants that are currently in the list but not in the new one
-            consultantToUpdate.getBookedProjects().removeIf(pc -> !consultant.getBookedProjects().contains(pc));
+//            //add all projectconsultants that are not already in the list
+//            for(ProjectConsultant pc : consultant.getBookedProjects()){
+//                pc.setConsultant(consultantToUpdate);//setup to make them comparable projectId == projectId && consultantId == consultantId
+//
+//                if(!consultantToUpdate.getBookedProjects().contains(pc)){
+//                    consultantToUpdate.getBookedProjects().add(pc);
+//                }
+//            }
+//
+//            //remove all projectconsultants that are currently in the list but not in the new one
+//            consultantToUpdate.getBookedProjects().removeIf(pc -> !consultant.getBookedProjects().contains(pc));
 
             consultant.setBookedProjects(null);//force skip on projectstaff in modelmapper
 

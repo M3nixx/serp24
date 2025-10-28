@@ -1,13 +1,12 @@
 package de.ostfalia.serp24.service;
 
 import de.ostfalia.serp24.Exceptions.NotFoundException;
-import de.ostfalia.serp24.model.Consultant;
-import de.ostfalia.serp24.model.Customer;
-import de.ostfalia.serp24.model.Entry;
-import de.ostfalia.serp24.model.Project;
+import de.ostfalia.serp24.Exceptions.UnauthorizedException;
+import de.ostfalia.serp24.model.*;
 import de.ostfalia.serp24.repository.ConsultantRepository;
 import de.ostfalia.serp24.repository.ProjectRepository;
 import de.ostfalia.serp24.repository.TimeRepository;
+import de.ostfalia.serp24.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +19,27 @@ public class TimeService {
     private final TimeRepository timeRepository;
     private final ConsultantRepository consultantRepository;
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
     private ModelMapper modelMapper;
 
     public TimeService(TimeRepository timeRepository, ModelMapper modelMapper,
-                       ConsultantRepository consultantRepository, ProjectRepository projectRepository) {
+                       ConsultantRepository consultantRepository, ProjectRepository projectRepository,
+                       UserRepository userRepository) {
         this.timeRepository = timeRepository;
         this.modelMapper = modelMapper;
         this.consultantRepository = consultantRepository;
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+    }
+
+    // check if user authorized for consultant
+    private void validateUserAccess(String externalUserId, Long consultantId) {
+        User user = userRepository.findByExternalID(externalUserId)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        if (!consultantId.equals(user.getConsultantID())) {
+            throw new UnauthorizedException("User not authorized for this consultant");
+        }
     }
 
     public List<Entry> findAll() {
@@ -37,11 +49,15 @@ public class TimeService {
     public List<Entry> findByConsultantId(Long id){
         return timeRepository.findByConsultantId(id);
     }
+
     public Entry findByEntryIdAndConsultantId(Long entryId, Long consultantId){
         return timeRepository.findByEntryIdAndAndConsultant_Id(entryId, consultantId);
     }
 
-    public Entry saveByConsultantId(Long consultantId, Entry entry) {
+    public Entry saveByConsultantId(Long consultantId, Entry entry, String externalUserId) {
+        // check user authorization
+        validateUserAccess(externalUserId, consultantId);
+
         Consultant consultant = consultantRepository.findById(consultantId)
                 .orElseThrow(() -> new NotFoundException("Consultant not found with id: " + consultantId));
 
@@ -54,41 +70,39 @@ public class TimeService {
         return timeRepository.save(entry);
     }
 
-    public Entry updateById(Long consultantId, Long entryId, Entry entry) {
+    public Entry updateById(Long consultantId, Long entryId, Entry entry, String externalUserId) {
         if (!timeRepository.existsById(entryId)) {
             throw new NotFoundException("Entry not found with id: " + entryId);
         }else {
             Entry entryToUpdate = findById(entryId);
 
+            // check user authorization by the consultant id in the entry before the update
+            validateUserAccess(externalUserId, entryToUpdate.getConsultant().getId());
+
+            //force skip on consultant since updating the consultant of an entry is not possible
+            entry.setConsultant(null);
+            if(entry.getProject() != null){
+                entryToUpdate.setProject(entry.getProject());
+            }
             modelMapper.map(entry, entryToUpdate);
-            return saveByConsultantId(consultantId, entryToUpdate);
+            return saveByConsultantId(consultantId, entryToUpdate, externalUserId);
         }
     }
 
     public List<Project> findAllProjects(){
-        /*return timeRepository.findAll()
-                .stream()
-                .map(Entry::getProject)
-                .distinct()
-                .toList();*/
         return timeRepository.findAllProjects();
     }
+
     public List<Consultant> findAllConsultants(){
-        /*return timeRepository.findAll()
-                .stream()
-                .map(Entry::getConsultant)
-                .distinct()
-                .toList();*/
         return timeRepository.findAllConsultants();
     }
-
 
     public Entry findById(Long id) {
         return timeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Entry not found with id: " + id));
     }
+
     public Entry save(Entry entry) {
         return timeRepository.save(entry);
     }
 }
-

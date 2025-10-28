@@ -35,19 +35,28 @@ public class ProjectService {
     }
 
     public Project save(Project project) {
-        if (project.getProjectStaff() != null) {
-            for (ProjectConsultant pc : project.getProjectStaff()) {
-                pc.setId(null); //force new relation
-                Consultant managedConsultant = consultantRepository.findById(pc.getConsultant().getId())
-                        .orElseThrow(() -> new NotFoundException("Consultant not found"));
-                pc.setConsultant(managedConsultant);
-                pc.setProject(project);
-            }
-        }
+//        if (project.getProjectStaff() != null) {
+//            for (ProjectConsultant pc : project.getProjectStaff()) {
+//                pc.setId(null); //force new relation
+//                Consultant managedConsultant = consultantRepository.findById(pc.getConsultant().getId())
+//                        .orElseThrow(() -> new NotFoundException("Consultant not found"));
+//                pc.setConsultant(managedConsultant);
+//                pc.setProject(project);
+//            }
+//        }
         if(project.getCustomer() != null && project.getCustomer().getName() == null){
             project.setCustomer(customerRepository.findById(project.getCustomer().getCustomerId())
                     .orElseThrow(() -> new NotFoundException("Customer not found")));
         }
+        if(project.getProjectStaff() != null){
+            for(ProjectConsultant pc : project.getProjectStaff()){
+                if(pc.getConsultant() != null && pc.getConsultant().getName() == null){
+                    pc.setConsultant(consultantRepository.findById(pc.getConsultant().getId())
+                            .orElseThrow(() -> new NotFoundException("Consultant not found")));
+                }
+            }
+        }
+
         return projectRepository.save(project);
     }
 
@@ -57,55 +66,81 @@ public class ProjectService {
     }
 
     public Project updateById(Long id, Project project) {
+
         if (!projectRepository.existsById(id)) {
             throw new NotFoundException("Project not found with id: " + id);
-        } else {
+        }else {
             Project projectToUpdate = findById(id);
 
-            // update basic fields
-            projectToUpdate.setName(project.getName());
-            projectToUpdate.setStart(project.getStart());
-            projectToUpdate.setEnd(project.getEnd());
-            projectToUpdate.setStatus(project.getStatus());
-            if (project.getCustomer() != null) {
-                projectToUpdate.setCustomer(project.getCustomer());
-            }
+            //add all projectconsultants that are not already in the list
+            for(ProjectConsultant pc : project.getProjectStaff()){
+                pc.setProject(projectToUpdate);//setup to make them comparable projectId == projectId && consultantId == consultantId
 
-            // only sync staff if provided (null = no change, empty = remove all)
-            if (project.getProjectStaff() != null) {
-                // remove projectconsultants if not in new list
-                projectToUpdate.getProjectStaff().removeIf(existingPC ->
-                        project.getProjectStaff().stream()
-                                .noneMatch(dtoPC ->
-                                        (dtoPC.getId() != null && existingPC.getId().equals(dtoPC.getId())) ||
-                                                (dtoPC.getConsultant() != null && existingPC.getConsultant().getId().equals(dtoPC.getConsultant().getId()))
-                                )
-                );
-
-                // add new projectconsultants
-                for (ProjectConsultant pc : project.getProjectStaff()) {
-                    boolean alreadyExists = projectToUpdate.getProjectStaff().stream()
-                            .anyMatch(existing ->
-                                    (pc.getId() != null && existing.getId().equals(pc.getId())) ||
-                                            existing.getConsultant().getId().equals(pc.getConsultant().getId())
-                            );
-
-                    if (!alreadyExists) {
-                        Consultant managedConsultant = consultantRepository.findById(pc.getConsultant().getId())
-                                .orElseThrow(() -> new NotFoundException("Consultant not found"));
-                        ProjectConsultant newPC = new ProjectConsultant();
-                        newPC.setConsultant(managedConsultant);
-                        newPC.setProject(projectToUpdate);
-                        projectToUpdate.getProjectStaff().add(newPC);
-                    }
+                if(!projectToUpdate.getProjectStaff().contains(pc)){
+                    projectToUpdate.getProjectStaff().add(pc);
                 }
             }
+
+                //remove all projectconsultants that are currently in the list but not in the new one
+            projectToUpdate.getProjectStaff().removeIf(pc -> !project.getProjectStaff().contains(pc));
+
             if(projectToUpdate.getCustomer() != null && projectToUpdate.getCustomer().getName() == null){
                 projectToUpdate.setCustomer(customerRepository.findById(projectToUpdate.getCustomer().getCustomerId())
                         .orElseThrow(() -> new NotFoundException("Customer not found")));
             }
-            return projectRepository.save(projectToUpdate);
+
+            project.setProjectStaff(null);//force skip on projectstaff in modelmapper
+            modelMapper.map(project, projectToUpdate);
+
+            return save(projectToUpdate);
         }
+
+
+//        if (!projectRepository.existsById(id)) {
+//            throw new NotFoundException("Project not found with id: " + id);
+//        } else {
+//            Project projectToUpdate = findById(id);
+//
+//            // update basic fields
+//            projectToUpdate.setName(project.getName());
+//            projectToUpdate.setStart(project.getStart());
+//            projectToUpdate.setEnd(project.getEnd());
+//            projectToUpdate.setStatus(project.getStatus());
+//            if (project.getCustomer() != null) {
+//                projectToUpdate.setCustomer(project.getCustomer());
+//            }
+//
+//            // only sync staff if provided (null = no change, empty = remove all)
+//            if (project.getProjectStaff() != null) {
+//                // remove projectconsultants if not in new list
+//                projectToUpdate.getProjectStaff().removeIf(existingPC ->
+//                        project.getProjectStaff().stream()
+//                                .noneMatch(dtoPC ->
+//                                        (dtoPC.getId() != null && existingPC.getId().equals(dtoPC.getId())) ||
+//                                                (dtoPC.getConsultant() != null && existingPC.getConsultant().getId().equals(dtoPC.getConsultant().getId()))
+//                                )
+//                );
+//
+//                // add new projectconsultants
+//                for (ProjectConsultant pc : project.getProjectStaff()) {
+//                    boolean alreadyExists = projectToUpdate.getProjectStaff().stream()
+//                            .anyMatch(existing ->
+//                                    (pc.getId() != null && existing.getId().equals(pc.getId())) ||
+//                                            existing.getConsultant().getId().equals(pc.getConsultant().getId())
+//                            );
+//
+//                    if (!alreadyExists) {
+//                        Consultant managedConsultant = consultantRepository.findById(pc.getConsultant().getId())
+//                                .orElseThrow(() -> new NotFoundException("Consultant not found"));
+//                        ProjectConsultant newPC = new ProjectConsultant();
+//                        newPC.setConsultant(managedConsultant);
+//                        newPC.setProject(projectToUpdate);
+//                        projectToUpdate.getProjectStaff().add(newPC);
+//                    }
+//                }
+//            }
+//            return projectRepository.save(projectToUpdate);
+//        }
     }
 
     public void deleteById(Long id) {

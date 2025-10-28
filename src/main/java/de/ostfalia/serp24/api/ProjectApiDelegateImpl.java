@@ -49,11 +49,11 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate {
     }
 
     @Override
-    public ResponseEntity<ProjectDTO> updateProject(Long id, ProjectDTO ProjectDTO) {
-        Project project = modelMapper.map(ProjectDTO, Project.class);
-
+    public ResponseEntity<ProjectDTO> updateProject(Long id, ProjectDTO projectDTO) {
+//        Project project = modelMapper.map(projectDTO, Project.class);
+        Project project = mapToProject(projectDTO);
         // fix ModelMapper empty list mapping to null
-        if (ProjectDTO.getProjectStaff() != null && ProjectDTO.getProjectStaff().isEmpty()) {
+        if (projectDTO.getProjectStaff() != null && projectDTO.getProjectStaff().isEmpty()) {
             project.setProjectStaff(new ArrayList<>());
         }
 
@@ -101,6 +101,52 @@ public class ProjectApiDelegateImpl implements ProjectsApiDelegate {
                 .toList();
 
         return ResponseEntity.ok(result);
+    }
+
+    public Project mapToProject(ProjectDTO dto){
+        if (dto == null) {
+            return null;
+        }
+
+        Project project = new Project();
+
+        project.setId(dto.getId());
+        project.setName(dto.getName());
+        project.setStart(dto.getStart());
+        project.setEnd(dto.getEnd());
+        project.setStatus(dto.getStatus());
+
+        // --- Map Customer ---
+        if (dto.getCustomer() != null) {
+            Customer customer = new Customer();
+            customer.setCustomerId(dto.getCustomer().getCustomerId());
+            project.setCustomer(customer);
+        }
+
+        // --- Map Project Staff (ProjectConsultants) ---
+        if (dto.getProjectStaff() != null) {
+            List<ProjectConsultant> projectConsultants = dto.getProjectStaff().stream()
+                    .map(pcDTO -> {
+                        ProjectConsultant pc = new ProjectConsultant();
+
+                        pc.setProject(project);
+
+                        Consultant consultant = new Consultant();
+                        consultant.setId(pcDTO.getConsultantId());
+                        consultant.setName(pcDTO.getName());
+                        pc.setConsultant(consultant);
+
+                        return pc;
+                    }).toList();
+
+            project.setProjectStaff(projectConsultants);
+        }
+
+        // Entries are not part of DTO — leave null or empty
+        project.setEntries(null);
+
+        return project;
+
     }
 
     public ProjectDTO mapToDTO(Project project) {
